@@ -1,0 +1,11 @@
+composer require slim/slim:"4.*"
+composer require slim/psr7
+composer require illuminate/database
+composer require nyholm/psr7
+composer require nyholm/psr7-server
+composer require php-di/php-di
+composer require vlucas/phpdotenv
+composer require respect/validation
+composer require firebase/php-jwt
+
+
