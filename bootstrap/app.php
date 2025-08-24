@@ -14,6 +14,7 @@ use Slim\Exception\HttpException;
 use Slim\Exception\HttpSpecializedException;
 use App\Http\Responses\Responder;
 use App\Exceptions\ValidationException;
+use Slim\Exception\HttpUnauthorizedException;
 
 
 
@@ -95,6 +96,25 @@ $container->set(Responder::class, fn() => new Responder($debug));
 
 // Error middleware (JSON)
 $errorMiddleware = $app->addErrorMiddleware($debug, true, true);
+
+// Handler khusus untuk error JWT (Unauthorized)
+$errorMiddleware->setErrorHandler(HttpUnauthorizedException::class, function (
+    Psr\Http\Message\ServerRequestInterface $request,
+    Throwable $exception,
+    bool $displayErrorDetails,
+    bool $logErrors,
+    bool $logErrorDetails
+) use ($app) {
+    $responder = $app->getContainer()->get(\App\Http\Responses\Responder::class);
+    $response  = $app->getResponseFactory()->createResponse();
+    return $responder->error(
+        $response,
+        'unauthorized',
+        $exception->getMessage(),
+        401
+    );
+});
+
 $errorMiddleware->setDefaultErrorHandler(function (ServerRequest $request, \Throwable $e) use ($app, $debug) {
     $responder = $app->getContainer()->get(\App\Http\Responses\Responder::class);
     $response  = $app->getResponseFactory()->createResponse();
